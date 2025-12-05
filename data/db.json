@@ -1,0 +1,37 @@
+{
+  "users": [
+    {
+      "id": "bf77500f-46c7-42e9-80eb-dffe4c9ee6e5",
+      "email": "zyr5592257@gmail.com",
+      "name": "yoro",
+      "password": "$2a$10$AVoDgFxgaFD9ojc/g4RZbu16fHIZkPkfXSjo4qhrTVigvJJz6aRCK",
+      "friends": []
+    }
+  ],
+  "cases": [
+    {
+      "id": "195f3b09-2109-4178-97ea-5032831fa17a",
+      "topic": "吃饭谁先吃",
+      "parties": [
+        {
+          "side": "A"
+        },
+        {
+          "side": "B"
+        }
+      ],
+      "status": "draft",
+      "created_at": "2025-12-05T00:51:01.701Z",
+      "owner_id": "bf77500f-46c7-42e9-80eb-dffe4c9ee6e5",
+      "participant_ids": [
+        "bf77500f-46c7-42e9-80eb-dffe4c9ee6e5"
+      ],
+      "acceptance": "accepted"
+    }
+  ],
+  "hearings": [],
+  "statements": [],
+  "evidence": [],
+  "verdicts": [],
+  "messages": []
+}
