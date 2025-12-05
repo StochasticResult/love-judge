@@ -2,465 +2,750 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Love Judge · 聊天与判决</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Love Judge Chat</title>
   <style>
     :root {
-      --bg: radial-gradient(circle at 10% 10%, #fdf3ff, #f7fbff 45%, #eef2ff 80%);
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --accent: #2563eb;
-      --accent-2: #f472b6;
-      --border: 1px solid rgba(15, 23, 42, 0.08);
-      --shadow: 0 16px 40px rgba(37, 99, 235, 0.12);
-      --radius: 16px;
+      --primary: #2563eb;
+      --primary-fg: #ffffff;
+      --bg-app: #f3f4f6;
+      --bg-panel: #ffffff;
+      --border: #e5e7eb;
+      --text-main: #1f2937;
+      --text-sub: #6b7280;
+      --bubble-me: #2563eb;
+      --bubble-peer: #f3f4f6;
+      --red: #ef4444;
+      --green: #10b981;
     }
+    
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "SF Pro Rounded","SF Pro Display","Segoe UI",system-ui,-apple-system,sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
+    body, html { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkVSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg-app); color: var(--text-main); }
+    
+    /* 登录页 */
+    #auth-screen {
+      display: flex; align-items: center; justify-content: center; height: 100%;
+      background: linear-gradient(135deg, #e0e7ff, #f3e8ff);
     }
-    header { padding: 26px 18px 12px; }
-    h1 { margin: 8px 0 4px; font-size: 28px; letter-spacing: -0.3px; }
-    .sub { margin: 0; color: var(--muted); }
-    .pill { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:#0f172a; color:#fff; font-weight:700; }
-    main {
-      max-width: 1200px; margin: 0 auto 50px; padding: 0 16px 32px;
-      display: grid; grid-template-columns: 320px 1fr; gap: 14px;
+    .auth-card {
+      background: var(--bg-panel); padding: 2rem; border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px;
     }
-    @media (max-width: 960px) { main { grid-template-columns: 1fr; } }
-    .card {
-      background: var(--card); border: var(--border); border-radius: var(--radius);
-      padding: 14px 14px 12px; box-shadow: var(--shadow);
+    .auth-card h1 { margin-top: 0; color: var(--primary); text-align: center; }
+    
+    /* 主应用布局 */
+    #app-screen { display: none; height: 100%; width: 100%; overflow: hidden; }
+    .sidebar {
+      width: 320px; background: var(--bg-panel); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
     }
-    h2 { margin: 6px 0 6px; font-size: 18px; letter-spacing: -0.2px; }
-    p { margin: 0; color: var(--muted); }
-    label { display:block; margin-bottom:6px; font-size:13px; color:var(--muted); }
-    input, textarea, button {
-      width: 100%; border-radius: 12px; border: var(--border); background: #fff;
-      padding: 10px 12px; font-size: 15px; color: var(--text); transition: 0.15s;
+    .main-chat {
+      flex: 1; display: flex; flex-direction: column; background: #fff; position: relative;
     }
-    textarea { min-height: 90px; resize: vertical; }
-    input:focus, textarea:focus {
-      outline: none; border-color: rgba(37, 99, 235, 0.4); box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.12);
+    
+    /* 侧边栏元素 */
+    .my-profile {
+      padding: 1rem; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center; background: #f9fafb;
     }
+    .user-avatar {
+      width: 40px; height: 40px; border-radius: 50%; background: #ddd; color: #666;
+      display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;
+    }
+    .add-friend-box { padding: 0.5rem; border-bottom: 1px solid var(--border); display: flex; gap: 0.5rem; }
+    .friend-list { flex: 1; overflow-y: auto; }
+    .friend-item {
+      padding: 1rem; cursor: pointer; display: flex; align-items: center; gap: 0.75rem;
+      transition: background 0.2s;
+    }
+    .friend-item:hover, .friend-item.active { background: #f3f4f6; }
+    .friend-info { flex: 1; min-width: 0; }
+    .friend-name { font-weight: 600; font-size: 0.95rem; }
+    .friend-last-msg { color: var(--text-sub); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* 聊天窗口 */
+    .chat-header {
+      padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(5px); z-index: 10;
+    }
+    .empty-state {
+      flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-sub); flex-direction: column;
+    }
+    
+    /* 案件面板（嵌入聊天顶部） */
+    .case-banner {
+      background: #eff6ff; border-bottom: 1px solid #dbeafe; padding: 0.75rem 1rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      font-size: 0.9rem;
+    }
+    .case-info strong { color: #1e40af; display: block; }
+    .case-status { font-size: 0.8rem; color: #60a5fa; }
+    .case-actions { display: flex; gap: 0.5rem; }
+    
+    /* 消息列表 */
+    .message-list {
+      flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem;
+      background: #f8fafc;
+    }
+    .msg { max-width: 70%; padding: 0.5rem 0.8rem; border-radius: 12px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
+    .msg.mine { align-self: flex-end; background: var(--bubble-me); color: white; border-bottom-right-radius: 2px; }
+    .msg.theirs { align-self: flex-start; background: var(--bubble-peer); color: var(--text-main); border-bottom-left-radius: 2px; }
+    .msg-time { font-size: 0.65rem; opacity: 0.7; margin-top: 2px; text-align: right; }
+    
+    /* 输入框 */
+    .chat-input-area {
+      padding: 1rem; border-top: 1px solid var(--border); background: white;
+      display: flex; gap: 0.5rem; align-items: flex-end;
+    }
+    textarea {
+      flex: 1; border: 1px solid var(--border); border-radius: 20px; padding: 10px 14px;
+      font-family: inherit; resize: none; height: 42px; max-height: 100px; outline: none;
+    }
+    textarea:focus { border-color: var(--primary); }
+    
+    /* 通用组件 */
+    input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; }
     button {
-      background: linear-gradient(115deg, #2563eb, #7c3aed, #f472b6); color:#fff; font-weight:800; border:none;
-      cursor: pointer; letter-spacing: 0.2px;
+      padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;
+      background: var(--primary); color: white; transition: 0.2s; white-space: nowrap;
     }
-    button.secondary { background:#0f172a; }
-    button.text { background: transparent; color: var(--accent); border: none; width: auto; padding: 6px 10px; }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .row { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); }
-    .hint { font-size: 13px; color: var(--muted); margin-top: 6px; }
-    .list { display: grid; gap: 8px; margin-top: 8px; }
-    .item {
-      border: var(--border); border-radius: 12px; padding: 10px;
-      display: flex; justify-content: space-between; align-items: center; background: #fff;
+    button.secondary { background: #e5e7eb; color: var(--text-main); }
+    button.danger { background: var(--red); color: white; }
+    button.success { background: var(--green); color: white; }
+    button.icon-btn { padding: 8px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+    
+    /* 模态框 */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
     }
-    .item .title { font-weight: 700; }
-    .item .meta { font-size: 12px; color: var(--muted); }
-    .chat {
-      display: grid; grid-template-rows: auto 1fr auto; gap: 10px;
-      min-height: 420px;
+    .modal { background: white; width: 90%; max-width: 500px; border-radius: 12px; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+    .hidden { display: none !important; }
+    
+    /* 响应式：移动端隐藏侧边栏 */
+    @media (max-width: 640px) {
+      .sidebar { width: 100%; position: absolute; height: 100%; z-index: 20; transform: translateX(0); transition: transform 0.3s; }
+      .sidebar.closed { transform: translateX(-100%); }
+      .main-chat { width: 100%; }
+      .back-btn { display: block; margin-right: 8px; }
     }
-    .messages {
-      border: var(--border); border-radius: 12px; padding: 10px; background: #f8fafc;
-      overflow-y: auto; max-height: 320px; display: grid; gap: 6px;
+    @media (min-width: 641px) {
+      .back-btn { display: none; }
+      #app-screen { display: flex; }
+      .sidebar { position: relative; transform: none; }
     }
-    .bubble {
-      padding: 8px 10px; border-radius: 12px; max-width: 80%;
-      background: #e0e7ff; color: #0f172a;
+    
+    /* 判决详情覆盖层 */
+    #hearing-screen {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: white; z-index: 50; display: flex; flex-direction: column;
+      overflow-y: auto; padding: 2rem;
     }
-    .mine { background: #dbeafe; margin-left: auto; }
-    .header {
-      display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
-    }
-    .tag { padding: 4px 10px; border-radius: 10px; background: #eef2ff; color: #4f46e5; font-size: 12px; }
-    .verdict {
-      border: var(--border); border-radius: 12px; padding: 12px; background: #f8faff; display: grid; gap: 6px;
-    }
-    .bar { height: 10px; background: #e5e7eb; border-radius: 999px; overflow: hidden; display: flex; }
-    .bar span { display: block; height: 100%; }
-    .bar .a { background: linear-gradient(120deg, #2563eb, #22d3ee); }
-    .bar .b { background: linear-gradient(120deg, #f472b6, #fb923c); }
-    .hidden { display: none; }
+    .hearing-container { max-width: 800px; margin: 0 auto; width: 100%; }
   </style>
 </head>
 <body>
-  <header>
-    <div class="pill">Love Judge · 聊天 + 案件</div>
-    <h1>像 Messenger 一样聊天，顺手发起案件并判决</h1>
-    <p class="sub">登录后进入聊天界面；在对话中创建/接受案件，提交双方想法并获取判决。</p>
-  </header>
 
-  <main>
-    <aside class="card">
-      <h2>登录 / 注册</h2>
-      <p>邮箱 + 昵称 + 密码，简洁体验。</p>
-      <div class="row" style="margin-top:10px;">
-        <input id="email" placeholder="邮箱" />
-        <input id="name" placeholder="昵称（注册时必填）" />
-        <input id="pwd" type="password" placeholder="密码（≥4位）" />
+  <div id="auth-screen">
+    <div class="auth-card">
+      <h1>⚖️ Love Judge</h1>
+      <p style="text-align:center; color:#6b7280; margin-bottom:1.5rem;">关系纠纷解决中心 · 聊天版</p>
+      <input id="email" placeholder="邮箱" />
+      <input id="name" placeholder="昵称 (注册时填)" />
+      <input id="pwd" type="password" placeholder="密码" />
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button onclick="doAuth('login')" class="secondary" style="flex:1">登录</button>
+        <button onclick="doAuthZX('signup')" style="flex:1">注册</button>
       </div>
-      <div class="row" style="margin-top:8px;">
-        <button id="signupBtn">注册并登录</button>
-        <button id="loginBtn" class="secondary">登录</button>
-      </div>
-      <div id="authStatus" class="hint"></div>
-      <hr style="border:none; border-top:1px dashed rgba(15,23,42,0.1); margin:12px 0;" />
-      <h2>联系人 / 案件</h2>
-      <div class="row">
-        <input id="lookupEmail" placeholder="输入邮箱，开始聊天或邀请" />
-        <button id="lookupBtn" class="secondary">查找并开启</button>
-      </div>
-      <div id="lookupStatus" class="hint"></div>
-      <div class="list" id="caseList"><span class="hint">登录后自动加载案件</span></div>
-    </aside>
+      <p id="auth-msg" style="color:var(--red); font-size:12px; text-align:center; margin-top:10px;"></p>
+    </div>
+  </div>
 
-    <section class="card">
-      <div class="header">
-        <div>
-          <h2 id="peerName">未选择聊天对象</h2>
-          <div class="hint" id="peerMeta">输入邮箱开启聊天或从案件中进入</div>
-        </div>
-        <div class="tag" id="caseTag">未选择案件</div>
-      </div>
-
-      <div class="chat" style="margin-top:10px;">
-        <div class="messages" id="messages">请选择联系人</div>
-        <div class="row">
-          <textarea id="chatInput" placeholder="像发消息一样沟通，记录会保存"></textarea>
-          <button id="sendMsgBtn">发送</button>
-        </div>
-      </div>
-
-      <div style="margin-top:12px;">
-        <div class="header">
-          <h2>案件操作（在当前聊天里）</h2>
-          <button id="createCaseBtn" class="text">发起案件邀请</button>
-        </div>
-        <div class="row" style="margin-top:8px;">
-          <input id="caseTopic" placeholder="一句话标题，例如：周末去哪" />
-        </div>
-        <div id="caseStatus" class="hint"></div>
-      </div>
-
-      <div style="margin-top:12px;">
-        <h2>提交双方想法</h2>
-        <p class="hint">各自输入想法，AI 不会逐字引用攻击性词汇。</p>
-        <div class="row" style="margin-top:8px;">
-          <textarea id="aText" placeholder="A 的想法/感受"></textarea>
-          <textarea id="bText" placeholder="B 的想法/感受（可代填占位）"></textarea>
-        </div>
-        <div class="row" style="margin-top:8px;">
-          <button id="submitStatementsBtn">提交陈述</button>
-          <button id="judgeBtn" class="secondary">请求判决</button>
-        </div>
-        <div id="progress" class="hint"></div>
-      </div>
-
-      <div style="margin-top:12px;">
-        <h2>判决结果</h2>
-        <div id="verdictArea" class="verdict hint">等待提交。</div>
-        <button id="appealToggle" class="hidden text">我要补充 / 上诉</button>
-        <div id="appealCard" class="verdict hidden">
-          <textarea id="appealAText" placeholder="A 补充"></textarea>
-          <textarea id="appealBText" placeholder="B 补充"></textarea>
-          <div class="row">
-            <input id="appealAProof" placeholder="A 新证据链接（可选）" />
-            <input id="appealBProof" placeholder="B 新证据链接（可选）" />
+  <div id="app-screen">
+    
+    <div class="sidebar" id="sidebar">
+      <div class="my-profile">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="user-avatar" id="my-avatar">Me</div>
+          <div>
+            <div style="font-weight:bold;" id="my-name">...</div>
+            <div style="font-size:12px; color:green;">● 在线</div>
           </div>
-          <button id="appealBtn">提交上诉并重新判决</button>
-          <div id="appealStatus" class="hint"></div>
+        </div>
+        <button class="secondary" style="padding:4px 8px; font-size:12px;" onclick="logout()">退出</button>
+      </div>
+      
+      <div class="add-friend-box">
+        <input id="friend-email-input" placeholder="输入好友邮箱..." style="margin:0; font-size:13px;" />
+        <button onclick="addFriend()" style="padding:0 12px;">+</button>
+      </div>
+
+      <div class="friend-list" id="friend-list">
+        </div>
+    </div>
+
+    <div class="main-chat">
+      <div class="chat-header hidden" id="chat-header">
+        <div style="display:flex; align-items:center;">
+          <button class="back-btn secondary" onclick="toggleSidebar()">←</button>
+          <div class="user-avatar" id="current-peer-avatar" style="margin-right:10px; width:32px; height:32px; font-size:12px;">?</div>
+          <strong id="current-peer-name">联系人</strong>
+        </div>
+        <button class="secondary" onclick="openCreateCaseModal()" style="font-size:13px;">⚖️ 发起审判</button>
+      </div>
+
+      <div id="active-case-banner" class="case-banner hidden">
+        <div class="case-info">
+          <strong id="banner-topic">周末去哪儿？</strong>
+          <span id="banner-status" class="case-status">等待对方接受 • 23小时后过期</span>
+        </div>
+        <div class="case-actions" id="banner-actions">
+          </div>
+      </div>
+
+      <div class="message-list" id="message-list">
+        <div class="empty-state">
+          <div style="font-size:3rem; margin-bottom:1rem;">👋</div>
+          <p>选择一个好友开始聊天</p>
+          <p style="font-size:0.9rem;">遇到分歧？点击右上角“发起审判”</p>
         </div>
       </div>
-    </section>
-  </main>
+
+      <div class="chat-input-area hidden" id="chat-input-area">
+        <textarea id="msg-input" placeholder="输入消息..."></textarea>
+        <button onclick="sendMessage()">发送</button>
+      </div>
+    </div>
+
+    <div id="hearing-screen" class="hidden">
+      <div class="hearing-container">
+        <button class="secondary" onclick="closeHearing()" style="margin-bottom:1rem;">← 返回聊天</button>
+        <div class="auth-card" style="max-width:100%; padding:0; box-shadow:none; background:transparent;">
+          <h2 id="hearing-topic" style="margin-top:0;">案件标题</h2>
+          <p id="hearing-status" style="color:var(--text-sub); margin-bottom:1rem;">状态</p>
+          
+          <div id="hearing-content">
+            <div id="statement-form" class="hidden">
+              <div style="background:#fff; padding:1.5rem; border-radius:12px; border:1px solid var(--border);">
+                <h3>提交你的陈述 (Round <span id="round-num">1</span>)</h3>
+                <p style="font-size:13px; color:#666;">AI 法官会基于你的描述进行公正判决。</p>
+                <textarea id="my-statement" style="height:120px; margin-top:10px;" placeholder="发生了什么？你的感受是？"></textarea>
+                <button onclick="submitStatement()" style="width:100%; margin-top:10px;">提交陈述</button>
+              </div>
+            </div>
+
+            <div id="waiting-verdict" class="hidden" style="text-align:center; padding:2rem;">
+              <h3>等待判决...</h3>
+              <p>双方都提交后，您可以点击“请求判决”。</p>
+              <button id="trigger-judge-btn" onclick="triggerJudge()" class="hidden">现在请求 AI 判决</button>
+            </div>
+
+            <div id="verdict-display" class="hidden">
+              <div style="background:#fff; padding:1.5rem; border-radius:12px; border:1px solid var(--border); box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                <h3 style="text-align:center; color:var(--primary);">⚖️ 判决结果</h3>
+                
+                <div style="display:flex; height:20px; border-radius:10px; overflow:hidden; margin:1rem 0;">
+                  <div id="bar-a" style="background:#3b82f6; width:50%;"></div>
+                  <div id="bar-b" style="background:#ec4899; width:50%;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold; margin-bottom:1.5rem;">
+                  <span style="color:#3b82f6;">我方支持率 <span id="score-a">0%</span></span>
+                  <span style="color:#ec4899;">对方支持率 <span id="score-b">0%</span></span>
+                </div>
+
+                <div style="margin-bottom:1rem;">
+                  <strong>结论：</strong>
+                  <p id="v-summary" style="margin:4px 0; color:#333;"></p>
+                </div>
+                <div style="margin-bottom:1rem;">
+                  <strong>事实依据：</strong>
+                  <p id="v-facts" style="font-size:0.9rem; color:#555;"></p>
+                </div>
+                <div style="margin-bottom:1rem;">
+                  <strong>建议：</strong>
+                  <ul id="v-advice" style="font-size:0.9rem; color:#555; padding-left:1.2rem;"></ul>
+                </div>
+                
+                <button class="secondary" style="width:100%; margin-top:1rem;" onclick="openAppeal()">不服？发起上诉</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="create-case-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3>⚖️ 发起新案件</h3>
+      <p style="color:#666; font-size:13px; margin-bottom:1rem;">邀请对方进入“Love Judge”流程。对方有 24 小时接受时间。</p>
+      <input id="new-case-topic" placeholder="争论的主题 (例如：今晚谁洗碗)" />
+      <div style="display:flex; gap:10px;">
+        <button class="secondary" onclick="$('create-case-modal').classList.add('hidden')" style="flex:1">取消</button>
+        <button onclick="createCase()" style="flex:1">发送邀请</button>
+      </div>
+    </div>
+  </div>
 
   <script>
+    // --- 核心状态与工具 ---
+    const API_URL = "";
     const state = {
       token: localStorage.getItem("lj_token"),
       user: null,
-      peer: null,
-      caseId: null,
-      hearingId: null,
-      round: 0,
+      activePeer: null, // 当前聊天的朋友对象
+      messages: [],
+      activeCase: null, // 当前聊天上下文中的活跃案件
+      pollInterval: null
     };
+    
     const $ = (id) => document.getElementById(id);
 
-    async function api(path, opts = {}) {
-      const res = await fetch(path, {
-        method: opts.method || "GET",
-        headers: {
-          "Content-Type": "application/json",
-          ...(state.token ? { Authorization: `Bearer ${state.token}` } : {}),
-        },
-        body: opts.body ? JSON.stringify(opts.body) : undefined,
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || res.statusText);
-      }
+    async function api(path, method="GET", body=null) {
+      const headers = { "Content-Type": "application/json" };
+      if (state.token) headers["Authorization"] = `Bearer ${state.token}`;
+      const opts = { method, headers };
+      if (body) opts.body = JSON.stringify(body);
+      const res = await fetch(API_URL + path, opts);
+      if (!res.ok) throw new Error(await res.text());
       return res.json();
     }
 
-    function setAuthStatus(msg) { $("authStatus").textContent = msg || ""; }
-    function setLookupStatus(msg) { $("lookupStatus").textContent = msg || ""; }
-    function setCaseStatus(msg) { $("caseStatus").textContent = msg || ""; }
-    function setProgress(msg) { $("progress").textContent = msg || ""; }
-
-    async function loadMe() {
-      if (!state.token) return;
-      try {
-        const { user } = await api("/me");
-        state.user = user;
-        setAuthStatus(`已登录：${user.name || user.email}`);
-        await loadCases();
-      } catch (err) {
-        setAuthStatus("登录失效，请重新登录");
-        localStorage.removeItem("lj_token");
-        state.token = null;
+    // --- 认证流程 ---
+    async function init() {
+      if (state.token) {
+        try {
+          const { user } = await api("/me");
+          state.user = user;
+          showApp();
+        } catch (e) {
+          logout();
+        }
       }
     }
 
-    async function loadCases() {
-      if (!state.token) return;
+    async function doAuth(type) {
+      const email = $("email").value;
+      const pwd = $("pwd").value;
+      const name = $("name").value;
       try {
-        const { cases } = await api("/cases");
-        if (!cases || cases.length === 0) {
-          $("caseList").innerHTML = "<span class='hint'>暂无案件</span>";
-          return;
-        }
-        $("caseList").innerHTML = cases.map((c) => {
-          const actions = [];
-          if (c.acceptance === "pending") {
-            actions.push(`<button class="text" data-accept="${c.id}">接受</button>`);
-            actions.push(`<button class="text" data-reject="${c.id}">拒绝</button>`);
+        const path = type === "login" ? "/auth/login" : "/auth/signup";
+        const body = { email, password: pwd };
+        if (type === "signup") body.name = name;
+
+        const res = await api(path, "POST", body);
+        state.token = res.token;
+        localStorage.setItem("lj_token", res.token);
+        state.user = res.user;
+        $("auth-msg").textContent = "";
+        showApp();
+      } catch (e) {
+        let msg = e.message;
+        try {
+          const parsed = JSON.parse(e.message);
+          msg = parsed.error || msg;
+        } catch (_) {}
+        $("auth-msg").textContent = "认证失败: " + msg;
+      }
+    }
+    // hack for rename conflict
+    const doAuthZX = doAuth; 
+
+    function logout() {
+      localStorage.removeItem("lj_token");
+      location.reload();
+    }
+
+    function showApp() {
+      $("auth-screen").style.display = "none";
+      $("app-screen").style.display = "flex";
+      $("my-name").textContent = state.user.name;
+      $("my-avatar").textContent = state.user.name[0].toUpperCase();
+      loadFriends();
+      startPolling();
+    }
+
+    // --- 侧边栏与好友 ---
+    async function loadFriends() {
+      try {
+        // 获取好友列表和最近对话
+        const [friendsRes, convRes] = await Promise.all([
+          api("/friends"),
+          api("/conversations")
+        ]);
+        
+        const list = $("friend-list");
+        list.innerHTML = "";
+        
+        // 合并展示，优先展示有对话的
+        const friendsMap = new Map();
+        friendsRes.friends.forEach(f => friendsMap.set(f.id, { ...f, lastMsg: "" }));
+        
+        // 更新最近消息
+        convRes.conversations.forEach(c => {
+          if (friendsMap.has(c.peer.id)) {
+            friendsMap.get(c.peer.id).lastMsg = c.last_message?.content || "";
+          } else {
+            // 如果不在好友列表但在对话列表（极少情况），也加上
+            friendsMap.set(c.peer.id, { ...c.peer, lastMsg: c.last_message?.content || "" });
           }
-          actions.push(`<button class="text" data-enter="${c.id}">进入</button>`);
-          return `
-            <div class="item">
-              <div>
-                <div class="title">${c.topic}</div>
-                <div class="meta">状态：${c.status}${c.expires_at ? ` · 过期：${c.expires_at}` : ""}</div>
-              </div>
-              <div>${actions.join(" ")}</div>
+        });
+
+        friendsMap.forEach(friend => {
+          const item = document.createElement("div");
+          item.className = "friend-item";
+          if (state.activePeer && state.activePeer.id === friend.id) item.classList.add("active");
+          item.onclick = () => selectPeer(friend);
+          item.innerHTML = `
+            <div class="user-avatar">${friend.name[0].toUpperCase()}</div>
+            <div class="friend-info">
+              <div class="friend-name">${friend.name}</div>
+              <div class="friend-last-msg">${friend.lastMsg || "暂无消息"}</div>
             </div>
           `;
-        }).join("");
-      } catch (err) {
-        $("caseList").innerHTML = `加载失败：${err.message}`;
-      }
+          list.appendChild(item);
+        });
+
+      } catch (e) { console.error(e); }
     }
 
-    $("caseList").addEventListener("click", async (e) => {
-      const t = e.target;
-      if (t.dataset.accept) {
-        try {
-          await api(`/cases/${t.dataset.accept}/accept`, { method: "POST" });
-          setCaseStatus("已接受邀请");
-          loadCases();
-        } catch (err) { setCaseStatus(`失败：${err.message}`); }
-      } else if (t.dataset.reject) {
-        try {
-          await api(`/cases/${t.dataset.reject}/reject`, { method: "POST" });
-          setCaseStatus("已拒绝邀请");
-          loadCases();
-        } catch (err) { setCaseStatus(`失败：${err.message}`); }
-      } else if (t.dataset.enter) {
-        state.caseId = t.dataset.enter;
-        state.hearingId = null;
-        state.round = 0;
-        $("caseTag").textContent = `案件：${state.caseId}`;
-        setCaseStatus("已选择案件，可以提交陈述");
-      }
-    });
-
-    $("signupBtn").addEventListener("click", async () => {
-      try {
-        const email = $("email").value.trim();
-        const name = $("name").value.trim();
-        const pwd = $("pwd").value.trim();
-        setAuthStatus("注册中...");
-        const res = await api("/auth/signup", { method: "POST", body: { email, name, password: pwd } });
-        state.token = res.token;
-        localStorage.setItem("lj_token", state.token);
-        await loadMe();
-        setAuthStatus("注册并登录成功");
-      } catch (err) { setAuthStatus(`失败：${err.message}`); }
-    });
-
-    $("loginBtn").addEventListener("click", async () => {
-      try {
-        const email = $("email").value.trim();
-        const pwd = $("pwd").value.trim();
-        setAuthStatus("登录中...");
-        const res = await api("/auth/login", { method: "POST", body: { email, password: pwd } });
-        state.token = res.token;
-        localStorage.setItem("lj_token", state.token);
-        await loadMe();
-        setAuthStatus("登录成功");
-      } catch (err) { setAuthStatus(`失败：${err.message}`); }
-    });
-
-    $("lookupBtn").addEventListener("click", async () => {
-      if (!state.token) return setAuthStatus("请先登录");
-      const email = $("lookupEmail").value.trim();
+    async function addFriend() {
+      const email = $("friend-email-input").value.trim();
       if (!email) return;
-      setLookupStatus("查找中...");
       try {
-        const { user } = await api(`/users/lookup?email=${encodeURIComponent(email)}`);
-        state.peer = user;
-        $("peerName").textContent = user.name || user.email;
-        $("peerMeta").textContent = user.email;
-        setLookupStatus("已找到，聊天已开启");
-        await loadMessages();
-      } catch (err) {
-        setLookupStatus(`失败：${err.message}`);
-      }
-    });
+        await api(`/friends/${encodeURIComponent(email)}`, "POST");
+        $("friend-email-input").value = "";
+        loadFriends();
+      } catch (e) { alert("添加失败，请检查邮箱"); }
+    }
+
+    // --- 聊天功能 ---
+    function toggleSidebar() {
+      $("sidebar").classList.toggle("closed");
+    }
+
+    async function selectPeer(peer) {
+      state.activePeer = peer;
+      $("sidebar").classList.add("closed"); // 移动端自动收起
+      
+      // UI 更新
+      $("chat-header").classList.remove("hidden");
+      $("chat-input-area").classList.remove("hidden");
+      $("current-peer-name").textContent = peer.name;
+      $("current-peer-avatar").textContent = peer.name[0].toUpperCase();
+      
+      // 高亮侧边栏
+      Array.from(document.querySelectorAll(".friend-item")).forEach(el => el.classList.remove("active"));
+      // 简单重新渲染好友列表来更新高亮略显笨重，这里省略优化
+      
+      loadMessages();
+      loadActiveCase();
+    }
 
     async function loadMessages() {
-      if (!state.peer) return;
-      try {
-        const { messages } = await api(`/chat/${state.peer.id}`);
-        if (!messages || messages.length === 0) {
-          $("messages").innerHTML = "<span class='hint'>还没有消息，先打个招呼吧</span>";
-          return;
+      if (!state.activePeer) return;
+      const res = await api(`/chat/${state.activePeer.id}`);
+      state.messages = res.messages;
+      renderMessages();
+    }
+
+    function renderMessages() {
+      const container = $("message-list");
+      container.innerHTML = "";
+      state.messages.forEach(m => {
+        const div = document.createElement("div");
+        const isMe = m.from_user_id === state.user.id;
+        div.className = `msg ${isMe ? "mine" : "theirs"}`;
+        div.innerHTML = `
+          ${m.content}
+          <div class="msg-time">${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+        `;
+        container.appendChild(div);
+      });
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const txt = $("msg-input").value.trim();
+      if (!txt || !state.activePeer) return;
+      $("msg-input").value = "";
+      
+      // 乐观更新 UI
+      const mockMsg = {
+        id: "temp-" + Date.now(),
+        from_user_id: state.user.id,
+        content: txt,
+        created_at: new Date().toISOString()
+      };
+      state.messages.push(mockMsg);
+      renderMessages();
+
+      await api(`/chat/${state.activePeer.id}`, "POST", { content: txt });
+      loadMessages(); // 重新拉取以确认
+      loadFriends(); // 更新侧边栏最后消息
+    }
+
+    // --- 案件集成逻辑 ---
+    
+    // 寻找当前聊天对象相关的活跃案件
+    async function loadActiveCase() {
+      if (!state.activePeer) return;
+      const { cases } = await api("/cases");
+      
+      // 过滤规则：
+      // 1. 我是 participant (后端已过滤)
+      // 2. 案件未关闭 (status != closed, expired)
+      // 3. 案件的另一个 participant 是 activePeer
+      // 注意：cases 列表不直接给 participants 详情，只给 id，但后端 listCasesByUser 逻辑似乎只返回概要
+      // 我们需要遍历查找。
+      
+      // 这里有个后端数据结构的小问题：/cases 列表返回的 case 对象里没有 explicit 的 participant list string，
+      // 但我们可以通过 logic 推断。或者获取 case 详情。
+      // 简单起见，我们假设每个 active case 我们都去 fetch 详情看一眼 participant 是否匹配。
+      // 优化：只取最近一个未关闭的 case。
+      
+      const active = [];
+      for (let c of cases) {
+        if (["closed", "expired"].includes(c.status)) continue;
+        // 获取详情以确认参与者
+        try {
+           const detail = await api(`/cases/${c.id}`);
+           const pIds = detail.case.participant_ids || [];
+           if (pIds.includes(state.activePeer.id)) {
+             active.push(detail.case);
+           }
+        } catch(e) {}
+      }
+      
+      // 取最新的一个
+      active.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+      const currentCase = active[0];
+      
+      state.activeCase = currentCase;
+      renderCaseBanner(currentCase);
+    }
+
+    function renderCaseBanner(c) {
+      const banner = $("active-case-banner");
+      const actions = $("banner-actions");
+      actions.innerHTML = "";
+      
+      if (!c) {
+        banner.classList.add("hidden");
+        return;
+      }
+      
+      banner.classList.remove("hidden");
+      $("banner-topic").textContent = "⚖️ 案件：" + c.topic;
+      
+      // 状态逻辑
+      const isOwner = c.owner_id === state.user.id;
+      let statusText = "";
+      
+      if (c.status === "pending_acceptance") {
+        if (c.acceptance === "pending") {
+          // 检查我是否是被邀请者
+          if (c.invited_user_id === state.user.id) {
+            statusText = "对方邀请你参与审判";
+            actions.innerHTML = `
+              <button onclick="respondCase('${c.id}', 'accept')" class="success" style="padding:4px 10px; font-size:12px;">接受</button>
+              <button onclick="respondCase('${c.id}', 'reject')" class="danger" style="padding:4px 10px; font-size:12px;">拒绝</button>
+            `;
+          } else {
+            statusText = "等待对方接受邀请";
+            actions.innerHTML = `<span style="font-size:12px; color:#999;">等待中...</span>`;
+          }
+          // 过期倒计时逻辑略，仅显示提示
+          if (c.expires_at) {
+            const hoursLeft = Math.floor((new Date(c.expires_at) - new Date()) / 3600000);
+            if (hoursLeft > 0) statusText += ` (${hoursLeft}小时后过期)`;
+            else statusText = "已过期";
+          }
         }
-        $("messages").innerHTML = messages.map((m) => {
-          const mine = m.from_user_id === state.user.id;
-          return `<div class="bubble ${mine ? "mine" : ""}"><div class="meta">${new Date(m.created_at).toLocaleString()}</div>${m.content}</div>`;
-        }).join("");
-        $("messages").scrollTop = $("messages").scrollHeight;
-      } catch (err) {
-        $("messages").innerHTML = `加载失败：${err.message}`;
+      } else if (c.status === "draft" || c.status === "pending_judgement" || c.status === "decided" || c.status === "appealed") {
+        statusText = "案件进行中";
+        actions.innerHTML = `<button onclick="enterCase('${c.id}')" style="padding:4px 10px; font-size:12px;">进入法庭</button>`;
       }
+      
+      $("banner-status").textContent = statusText;
     }
 
-    $("sendMsgBtn").addEventListener("click", async () => {
-      if (!state.peer) return setLookupStatus("请先选择联系人");
-      const content = $("chatInput").value.trim();
-      if (!content) return;
-      $("sendMsgBtn").disabled = true;
-      try {
-        await api(`/chat/${state.peer.id}`, { method: "POST", body: { content } });
-        $("chatInput").value = "";
-        await loadMessages();
-      } catch (err) { setLookupStatus(`发送失败：${err.message}`); }
-      finally { $("sendMsgBtn").disabled = false; }
-    });
-
-    $("createCaseBtn").addEventListener("click", async () => {
-      if (!state.peer) return setCaseStatus("请先选择联系人");
-      const topic = $("caseTopic").value.trim();
-      if (!topic) return setCaseStatus("请填写标题");
-      setCaseStatus("创建中...");
-      try {
-        const res = await api("/cases", { method: "POST", body: { topic, friend_email: state.peer.email } });
-        state.caseId = res.id;
-        state.hearingId = null;
-        state.round = 0;
-        $("caseTag").textContent = `案件：${res.id}（${res.acceptance === "pending" ? "等待对方接受" : "可用"}）`;
-        setCaseStatus("案件已创建，等待对方接受");
-        loadCases();
-      } catch (err) { setCaseStatus(`失败：${err.message}`); }
-    });
-
-    async function ensureHearing() {
-      if (!state.caseId) throw new Error("请先选择或创建案件");
-      const now = new Date().toISOString();
-      const a = $("aText").value.trim();
-      const b = $("bText").value.trim();
-      if (!a || !b) throw new Error("请填写双方想法（如对方未填可代填一句占位）");
-      const statements = [
-        { side: "A", narrative: a, created_at: now },
-        { side: "B", narrative: b, created_at: now },
-      ];
-      const res = await api(`/cases/${state.caseId}/hearings`, { method: "POST", body: { statements } });
-      state.hearingId = res.hearing.id;
-      state.round = res.hearing.round;
+    function openCreateCaseModal() {
+      if (!state.activePeer) return alert("请先选择聊天对象");
+      $("create-case-modal").classList.remove("hidden");
     }
 
-    async function judge() {
-      const res = await api(`/cases/${state.caseId}/hearings/${state.hearingId}/judge`, { method: "POST" });
-      return res.verdict;
+    async function createCase() {
+      const topic = $("new-case-topic").value.trim();
+      if (!topic) return;
+      try {
+        await api("/cases", "POST", { 
+          topic, 
+          friend_email: state.activePeer.email 
+        });
+        $("create-case-modal").classList.add("hidden");
+        $("new-case-topic").value = "";
+        // 发送一条系统消息（可选，前端伪造或真实发送）
+        await api(`/chat/${state.activePeer.id}`, "POST", { content: `[系统] 我发起了一个案件邀请：${topic}` });
+        loadMessages();
+        loadActiveCase();
+      } catch (e) { alert(e.message); }
     }
 
-    $("submitStatementsBtn").addEventListener("click", async () => {
-      setProgress("提交陈述中...");
+    async function respondCase(id, action) {
       try {
-        await ensureHearing();
-        setProgress("陈述已提交，点击请求判决");
-      } catch (err) {
-        setProgress(`失败：${err.message}`);
+        await api(`/cases/${id}/${action}`, "POST");
+        loadActiveCase();
+      } catch (e) { alert(e.message); }
+    }
+
+    // --- 审理/判决 详情页 ---
+    async function enterCase(caseId) {
+      const res = await api(`/cases/${caseId}`);
+      const c = res.case;
+      const hearing = res.latest_hearing;
+      const verdict = res.latest_verdict;
+      state.activeCase = c;
+      
+      $("hearing-screen").classList.remove("hidden");
+      $("hearing-topic").textContent = c.topic;
+      $("hearing-status").textContent = `Case ID: ${c.id.slice(0,8)} · Round ${hearing ? hearing.round : 1}`;
+      
+      // 逻辑路由
+      $("statement-form").classList.add("hidden");
+      $("waiting-verdict").classList.add("hidden");
+      $("verdict-display").classList.add("hidden");
+      $("trigger-judge-btn").classList.add("hidden");
+      
+      if (!hearing) {
+        // Round 1 刚开始
+        $("statement-form").classList.remove("hidden");
+        $("round-num").textContent = "1";
+      } else if (hearing.status === "submitted") {
+        $("waiting-verdict").classList.remove("hidden");
+        $("statement-form").classList.remove("hidden");
+        $("waiting-verdict").classList.remove("hidden");
+        $("trigger-judge-btn").classList.remove("hidden");
+      } else if (hearing.status === "judged" && verdict) {
+        renderVerdict(verdict);
       }
-    });
-
-    $("judgeBtn").addEventListener("click", async () => {
-      if (!state.hearingId) return setProgress("请先提交陈述");
-      setProgress("判决中，通常 5-15 秒...");
-      $("judgeBtn").disabled = true;
+      
+      // 暂存 ID 以便操作
+      state.currentCaseId = caseId;
+      state.currentHearingId = hearing ? hearing.id : null;
+    }
+    
+    // 由于后端没有单独列出 statements 的接口，我们只能依赖 POST hearings 时的逻辑
+    // 这里如果 hearing 已经存在，我们还是调用 POST hearings，后端会创建新的 hearing 吗？
+    // 看后端代码：POST /hearings 会 calculate nextRound。
+    // 如果我们要追加陈述到当前 hearing，似乎后端没有显式支持 update statement？
+    // 后端 saveStatements 是 append。
+    // 所以逻辑是：如果 hearing 存在且 submitted，再次 POST hearings 会创建 *下一个 round* 吗？
+    // 不，后端逻辑是：nextRound = param ?? max + 1. 
+    // 所以如果我们想往当前 round 加数据，比较难。
+    // 修正策略：如果 hearing 存在且未 judged，用户应当只能点击“请求判决”。
+    // 但如果用户还没陈述呢？这是一个后端设计的小缺憾。
+    // 假设：用户每次 enter 都可能是第一次陈述。
+    // 临时方案：始终显示提交框，提交时带上 round = currentRound (如果能传)。
+    // 后端代码： const nextRound = parsed.data.round ?? ...
+    // 所以我们可以传 round。
+    
+    async function submitStatement() {
+      const narrative = $("my-statement").value;
+      if (!narrative) return;
+      
+      // 确定是 A 还是 B
+      // case.parties 数组， owner 是 parties[0] (A) ? 不一定，看创建逻辑。
+      // 后端 createCase 默认 owner=participant_ids[0]，parties[0]=A
+      // 简化：我们需要知道我是 A 还是 B。
+      // 暂时假设 owner = A.
+      const isOwner = state.activeCase && state.activeCase.owner_id === state.user.id;
+      const side = isOwner ? "A" : "B";
+      
+      const body = {
+        statements: [{ side, narrative }],
+      };
+      
+      // 如果已知 hearingId，试图复用 round
+      // 但为了安全，直接让后端处理，我们只管提交
+      // 注意：如果 hearing 已经存在，不传 round 会导致创建 round+1。
+      // 我们必须获取当前 round。
+      // 在 enterCase 里我们获取了 latest_hearing。
+      
+      const res = await api(`/cases/${state.currentCaseId}`);
+      const latest = res.latest_hearing;
+      
+      if (latest && latest.status === 'submitted') {
+         body.round = latest.round;
+      }
+      
       try {
-        const verdict = await judge();
-        showVerdict(verdict);
-        setProgress("判决完成，如需补充可上诉");
-      } catch (err) { setProgress(`失败：${err.message}`); }
-      finally { $("judgeBtn").disabled = false; }
-    });
-
-    function showVerdict(verdict) {
-      const a = verdict.score.partyA_pct;
-      const b = verdict.score.partyB_pct;
-      $("verdictArea").classList.remove("hint");
-      $("verdictArea").innerHTML = `
-        <div><strong>判决结果</strong></div>
-        <div class="bar"><span class="a" style="width:${a}%;"></span><span class="b" style="width:${b}%;"></span></div>
-        <div>A ${a}% · B ${b}% · 信心 ${(verdict.score.confidence * 100).toFixed(0)}%</div>
-        <div><strong>结论：</strong>${verdict.summary || "暂无"}</div>
-        <div><strong>事实依据：</strong>${verdict.reasoning?.facts || "—"}</div>
-        <div><strong>情绪/压力考量：</strong>${verdict.reasoning?.emotion_considerations || "—"}</div>
-        <div><strong>缺失信息：</strong>${(verdict.reasoning?.missing_info || []).join("；") || "—"}</div>
-        <div><strong>一起可以做：</strong>${(verdict.advice?.together || []).join("；") || "—"}</div>
-        <div><strong>A 可以做：</strong>${(verdict.advice?.forA || []).join("；") || "—"}</div>
-        <div><strong>B 可以做：</strong>${(verdict.advice?.forB || []).join("；") || "—"}</div>
-      `;
-      $("appealToggle").classList.remove("hidden");
+        const hRes = await api(`/cases/${state.currentCaseId}/hearings`, "POST", body);
+        state.currentHearingId = hRes.hearing.id;
+        $("my-statement").value = "";
+        alert("陈述已提交");
+        enterCase(state.currentCaseId); // 刷新视图
+      } catch (e) { alert(e.message); }
     }
 
-    $("appealToggle").addEventListener("click", () => {
-      $("appealCard").classList.toggle("hidden");
-    });
-
-    $("appealBtn").addEventListener("click", async () => {
-      if (!state.caseId || !state.hearingId) return;
-      $("appealBtn").disabled = true;
-      $("appealStatus").textContent = "上诉中...";
-      const now = new Date().toISOString();
-      const statements = [];
-      if ($("appealAText").value.trim()) statements.push({ side: "A", narrative: $("appealAText").value.trim(), created_at: now });
-      if ($("appealBText").value.trim()) statements.push({ side: "B", narrative: $("appealBText").value.trim(), created_at: now });
-      const evidence = [];
-      if ($("appealAProof").value.trim()) evidence.push({ side: "A", type: "link", title: "A 新证据", content_or_url: $("appealAProof").value.trim(), created_at: now });
-      if ($("appealBProof").value.trim()) evidence.push({ side: "B", type: "link", title: "B 新证据", content_or_url: $("appealBProof").value.trim(), created_at: now });
+    async function triggerJudge() {
+      if (!state.currentHearingId) return alert("请先提交陈述");
       try {
-        const { hearing } = await api(`/cases/${state.caseId}/hearings/${state.hearingId}/appeal`, { method: "POST", body: { statements, evidence } });
-        state.hearingId = hearing.id;
-        state.round = hearing.round;
-        $("appealStatus").textContent = "已提交上诉，重新判决中...";
-        const verdict = await judge();
-        showVerdict(verdict);
-        $("appealStatus").textContent = "新的判决已生成";
-      } catch (err) { $("appealStatus").textContent = `失败：${err.message}`; }
-      finally { $("appealBtn").disabled = false; }
-    });
+        const res = await api(`/cases/${state.currentCaseId}/hearings/${state.currentHearingId}/judge`, "POST");
+        enterCase(state.currentCaseId);
+      } catch(e) { alert("判决失败 (可能对方还没提交?): " + e.message); }
+    }
+    
+    function renderVerdict(v) {
+      $("verdict-display").classList.remove("hidden");
+      $("score-a").textContent = v.score.partyA_pct + "%";
+      $("score-b").textContent = v.score.partyB_pct + "%";
+      $("bar-a").style.width = v.score.partyA_pct + "%";
+      $("bar-b").style.width = v.score.partyB_pct + "%";
+      
+      $("v-summary").textContent = v.summary;
+      $("v-facts").textContent = v.reasoning.facts;
+      
+      const adviceHtml = [];
+      [...v.advice.together, ...v.advice.forA, ...v.advice.forB].forEach(txt => {
+        adviceHtml.push(`<li>${txt}</li>`);
+      });
+      $("v-advice").innerHTML = adviceHtml.join("");
+    }
+    
+    async function openAppeal() {
+       // 上诉逻辑：直接创建新一轮 hearing
+       // 简单实现：清空输入框，回到提交状态，并且 round 会自动 +1
+       alert("上诉模式：请在上方输入框填写新的补充陈述，再次提交即可开启下一轮。");
+       $("statement-form").classList.remove("hidden");
+       $("waiting-verdict").classList.add("hidden");
+       $("verdict-display").classList.add("hidden");
+       $("my-statement").focus();
+       // 此时 currentHearingId 指向旧的，提交时会自动创建新的（因为不传 round）
+    }
 
-    loadMe();
+    function closeHearing() {
+      $("hearing-screen").classList.add("hidden");
+      loadActiveCase(); // 刷新 Banner 状态
+    }
+
+    // --- 轮询 ---
+    function startPolling() {
+      if (state.pollInterval) clearInterval(state.pollInterval);
+      state.pollInterval = setInterval(() => {
+        if (!state.token) return;
+        // 简单轮询消息和案件状态
+        if (state.activePeer) {
+           loadMessages();
+           loadActiveCase(); // 实时更新案件状态（如对方接受了）
+        }
+        // 也可以轮询好友列表的小红点，这里略
+      }, 3000);
+    }
+
+    init();
   </script>
 </body>
 </html>

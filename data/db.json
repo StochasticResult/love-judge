@@ -6,6 +6,25 @@
       "name": "yoro",
       "password": "$2a$10$AVoDgFxgaFD9ojc/g4RZbu16fHIZkPkfXSjo4qhrTVigvJJz6aRCK",
       "friends": []
+    },
+    {
+      "id": "b5d76175-3dfe-4548-ba85-bd41ee91b674",
+      "email": "zyuri1001@gmail.com",
+      "name": "yoro0",
+      "password": "$2a$10$aQaBuL76O2MQ/HAf.E6XG.DR31oft19XrfV25/9q2.0/dbueBeyya",
+      "friends": [
+        "b5d76175-3dfe-4548-ba85-bd41ee91b674",
+        "2d7fc6c0-98fe-4055-8788-2decdeea8c4d"
+      ]
+    },
+    {
+      "id": "2d7fc6c0-98fe-4055-8788-2decdeea8c4d",
+      "email": "test@test.com",
+      "name": "test",
+      "password": "$2a$10$12m/LlOsVKQTX2fG5pHQNui3mjOqJG5XV6pe95Hylp9HoPAGA5GLS",
+      "friends": [
+        "b5d76175-3dfe-4548-ba85-bd41ee91b674"
+      ]
     }
   ],
   "cases": [
@@ -27,11 +46,309 @@
         "bf77500f-46c7-42e9-80eb-dffe4c9ee6e5"
       ],
       "acceptance": "accepted"
+    },
+    {
+      "id": "f4ca8245-b8d3-4307-9d12-117e6dafa71e",
+      "topic": "test",
+      "parties": [
+        {
+          "side": "A"
+        },
+        {
+          "side": "B"
+        }
+      ],
+      "status": "decided",
+      "created_at": "2025-12-05T04:48:53.470Z",
+      "owner_id": "b5d76175-3dfe-4548-ba85-bd41ee91b674",
+      "participant_ids": [
+        "b5d76175-3dfe-4548-ba85-bd41ee91b674"
+      ],
+      "invited_user_id": "b5d76175-3dfe-4548-ba85-bd41ee91b674",
+      "expires_at": "2025-12-06T04:48:53.471Z",
+      "acceptance": "accepted"
+    },
+    {
+      "id": "f0e13895-7d2a-4b0a-911b-f6c9a5e84bf8",
+      "topic": "第一口饭谁吃",
+      "parties": [
+        {
+          "side": "A"
+        },
+        {
+          "side": "B"
+        }
+      ],
+      "status": "decided",
+      "created_at": "2025-12-05T04:51:01.869Z",
+      "owner_id": "b5d76175-3dfe-4548-ba85-bd41ee91b674",
+      "participant_ids": [
+        "b5d76175-3dfe-4548-ba85-bd41ee91b674",
+        "2d7fc6c0-98fe-4055-8788-2decdeea8c4d"
+      ],
+      "invited_user_id": "2d7fc6c0-98fe-4055-8788-2decdeea8c4d",
+      "expires_at": "2025-12-06T04:51:01.869Z",
+      "acceptance": "accepted"
     }
   ],
-  "hearings": [],
-  "statements": [],
+  "hearings": [
+    {
+      "id": "668c65c4-db29-4fb8-b482-dbc8ac31c150",
+      "case_id": "f4ca8245-b8d3-4307-9d12-117e6dafa71e",
+      "round": 1,
+      "status": "judged",
+      "created_at": "2025-12-05T04:49:08.760Z"
+    },
+    {
+      "id": "eeae6d0a-0b1c-4d01-a303-d661d173b01c",
+      "case_id": "f4ca8245-b8d3-4307-9d12-117e6dafa71e",
+      "round": 1,
+      "status": "submitted",
+      "created_at": "2025-12-05T04:49:24.424Z"
+    },
+    {
+      "id": "a5a3043f-3584-42c9-871f-30251dac4c46",
+      "case_id": "f0e13895-7d2a-4b0a-911b-f6c9a5e84bf8",
+      "round": 1,
+      "status": "judged",
+      "created_at": "2025-12-05T04:51:17.324Z"
+    },
+    {
+      "id": "e8dda2b9-29f7-4ef5-9ff2-0db2d2dffba1",
+      "case_id": "f0e13895-7d2a-4b0a-911b-f6c9a5e84bf8",
+      "round": 1,
+      "status": "submitted",
+      "created_at": "2025-12-05T04:51:27.906Z"
+    }
+  ],
+  "statements": [
+    {
+      "side": "A",
+      "narrative": "我吃了一口饭",
+      "hearing_id": "668c65c4-db29-4fb8-b482-dbc8ac31c150",
+      "created_at": "2025-12-05T04:49:08.761Z"
+    },
+    {
+      "side": "A",
+      "narrative": "我也吃了一口饭",
+      "hearing_id": "eeae6d0a-0b1c-4d01-a303-d661d173b01c",
+      "created_at": "2025-12-05T04:49:24.424Z"
+    },
+    {
+      "side": "A",
+      "narrative": "我就饿了，所以就直接吃了",
+      "hearing_id": "a5a3043f-3584-42c9-871f-30251dac4c46",
+      "created_at": "2025-12-05T04:51:17.325Z"
+    },
+    {
+      "side": "B",
+      "narrative": "第一口饭没给我吃，是不是不爱我了",
+      "hearing_id": "e8dda2b9-29f7-4ef5-9ff2-0db2d2dffba1",
+      "created_at": "2025-12-05T04:51:27.907Z"
+    }
+  ],
   "evidence": [],
-  "verdicts": [],
-  "messages": []
+  "verdicts": [
+    {
+      "hearing_id": "668c65c4-db29-4fb8-b482-dbc8ac31c150",
+      "score": {
+        "partyA_pct": 50,
+        "partyB_pct": 50,
+        "confidence": 0.6
+      },
+      "summary": "本案为测试性质的关系调解情境。目前仅有 A 的事实陈述：A 表示“吃了一口饭”，未提供情感、背景或诉求，也无对方证据。B 的立场、情绪与诉求未披露，因此尚无明确冲突事实，需要通过信息收集与沟通来明确争议点和双方需求。",
+      "reasoning": {
+        "facts": "已知：A 的行为陈述为“吃了一口饭”。未给出情绪、背景、诉求、证据。B 的陈述与证据缺失。当前未能确认具体争议点。",
+        "fairness_checks": [
+          "不对任何人进行道德审判，保持中性与理性。",
+          "明确缺失信息，列出需要补充的要点。",
+          "如有推断，附上清晰的假设。",
+          "用中性语言描述双方立场与潜在后果，避免二次伤害。"
+        ],
+        "emotion_considerations": [
+          "由于信息不足，可能存在困惑、好奇、或对话与沟通的担忧等情绪。",
+          "外部压力可能来自对话环境、时间安排、期望避免冲突等。"
+        ],
+        "assumptions": [
+          "若存在争议，假设其核心在于对该行为的态度、情境或影响，而非道德评价。",
+          "当前案情信息有限，推断仅基于常见沟通情境，非对事实的定性判断。",
+          "双方尚未达成任何书面或口头的具体诉求。"
+        ],
+        "missing_info": [
+          "B 的立场、情绪与具体诉求未披露。",
+          "事件发生的时间、地点、背景与相关情境。",
+          "争议的具体点是对方是否对该行为表示不满、误解或其它感受。",
+          "是否存在实际损害、利益冲突或后续整改的需求。",
+          "双方关系性质（如同事、家人、朋友等）及期望的解决方式。"
+        ]
+      },
+      "advice": {
+        "together": [
+          "进行一次结构化沟通，澄清双方的陈述、感受与诉求。",
+          "避免指责，围绕事实与需求展开对话，必要时记录要点。",
+          "若信息不足，共同制定信息收集清单（时间、地点、涉及人物、具体事件细节）并约定后续反馈。",
+          "在安全与尊重的前提下，设定共同目标与可操作的解决路径。"
+        ],
+        "forA": [
+          "清晰表达你已经吃过的事实及其对你情感与诉求的初步影响（若有），并请对方提供对该事件的具体看法与感受。",
+          "列出你希望获得的结果或信息，例如对方的关切点、期望的解决方式或需要的证据。",
+          "如无明确诉求，说明你只是在寻求澄清与理解。"
+        ],
+        "forB": [
+          "如有感受或担忧，尽早向对方表达；如无强烈诉求，也请提供对事件的看法与可能的后续期望。",
+          "回应时聚焦事实与需求，避免指责；若需要，提供具体信息（时间、地点、情境、相关人物等）以便共同理解。",
+          "参与解决过程，若你愿意，提出可执行的解决方案或后续沟通安排。"
+        ]
+      },
+      "raw_agent_payload": {
+        "id": "chatcmpl-CjI2ynLjgx2pLQC2Z6BApBwhjcW8j",
+        "object": "chat.completion",
+        "created": 1764910168,
+        "model": "gpt-5-nano-2025-08-07",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"score\": {\n    \"partyA_pct\": 50,\n    \"partyB_pct\": 50,\n    \"confidence\": 0.6\n  },\n  \"summary\": \"本案为测试性质的关系调解情境。目前仅有 A 的事实陈述：A 表示“吃了一口饭”，未提供情感、背景或诉求，也无对方证据。B 的立场、情绪与诉求未披露，因此尚无明确冲突事实，需要通过信息收集与沟通来明确争议点和双方需求。\",\n  \"reasoning\": {\n    \"facts\": \"已知：A 的行为陈述为“吃了一口饭”。未给出情绪、背景、诉求、证据。B 的陈述与证据缺失。当前未能确认具体争议点。\",\n    \"fairness_checks\": [\n      \"不对任何人进行道德审判，保持中性与理性。\",\n      \"明确缺失信息，列出需要补充的要点。\",\n      \"如有推断，附上清晰的假设。\",\n      \"用中性语言描述双方立场与潜在后果，避免二次伤害。\"\n    ],\n    \"emotion_considerations\": [\n      \"由于信息不足，可能存在困惑、好奇、或对话与沟通的担忧等情绪。\",\n      \"外部压力可能来自对话环境、时间安排、期望避免冲突等。\"\n    ],\n    \"assumptions\": [\n      \"若存在争议，假设其核心在于对该行为的态度、情境或影响，而非道德评价。\",\n      \"当前案情信息有限，推断仅基于常见沟通情境，非对事实的定性判断。\",\n      \"双方尚未达成任何书面或口头的具体诉求。\"\n    ],\n    \"missing_info\": [\n      \"B 的立场、情绪与具体诉求未披露。\",\n      \"事件发生的时间、地点、背景与相关情境。\",\n      \"争议的具体点是对方是否对该行为表示不满、误解或其它感受。\",\n      \"是否存在实际损害、利益冲突或后续整改的需求。\",\n      \"双方关系性质（如同事、家人、朋友等）及期望的解决方式。\"\n    ]\n  },\n  \"advice\": {\n    \"together\": [\n      \"进行一次结构化沟通，澄清双方的陈述、感受与诉求。\",\n      \"避免指责，围绕事实与需求展开对话，必要时记录要点。\",\n      \"若信息不足，共同制定信息收集清单（时间、地点、涉及人物、具体事件细节）并约定后续反馈。\",\n      \"在安全与尊重的前提下，设定共同目标与可操作的解决路径。\"\n    ],\n    \"forA\": [\n      \"清晰表达你已经吃过的事实及其对你情感与诉求的初步影响（若有），并请对方提供对该事件的具体看法与感受。\",\n      \"列出你希望获得的结果或信息，例如对方的关切点、期望的解决方式或需要的证据。\",\n      \"如无明确诉求，说明你只是在寻求澄清与理解。\"\n    ],\n    \"forB\": [\n      \"如有感受或担忧，尽早向对方表达；如无强烈诉求，也请提供对事件的看法与可能的后续期望。\",\n      \"回应时聚焦事实与需求，避免指责；若需要，提供具体信息（时间、地点、情境、相关人物等）以便共同理解。\",\n      \"参与解决过程，若你愿意，提出可执行的解决方案或后续沟通安排。\"\n    ]\n  }\n}",
+              "refusal": null,
+              "annotations": []
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 219,
+          "completion_tokens": 3930,
+          "total_tokens": 4149,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "audio_tokens": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 3072,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          }
+        },
+        "service_tier": "default",
+        "system_fingerprint": null
+      },
+      "created_at": "2025-12-05T04:50:00.486Z"
+    },
+    {
+      "hearing_id": "a5a3043f-3584-42c9-871f-30251dac4c46",
+      "score": {
+        "partyA_pct": 55,
+        "partyB_pct": 45,
+        "confidence": 0.4
+      },
+      "summary": "目前信息仅显示A因饥饿而直接吃了第一口，B方尚未陈述意见或提供证据，缺乏关于共享规则、先后顺序或 ownership 的明确信息。因此，无法单凭当前事实作出明确的分配结论，需获取B方的陈述以便公正判断。",
+      "reasoning": {
+        "facts": [
+          "A的陈述为：因饥饿而直接吃了第一口。",
+          "没有B方的陈述、证据或对共享规则的说明。",
+          "未提供关于是否存在事先的约定、轮流、份额分配等信息。"
+        ],
+        "fairness_checks": [
+          "信息来源单一，存在信息偏倚风险；需要对方陈述以确认共同用餐的规则与期望。",
+          "在缺乏明确规则时，避免对占据“第一口”的行为作道德判断，重点在于建立公平的解决方案。"
+        ],
+        "emotion_considerations": [
+          "可能存在因饥饿导致的正当性情绪，但无法从A方情绪推断B方立场。",
+          "若双方对共享与分配有情感诉求，情绪应通过对话与协商解决，而非指责。"
+        ],
+        "assumptions": [
+          "假设场景为两人共享餐食，且存在对第一口的潜在争议。",
+          "假设不存在明确的事前规则或约定关于第一口的分配。"
+        ],
+        "missing_info": [
+          "请提供B方的陈述与诉求。",
+          "是否存在事前的用餐规则、轮流、份额分配等约定。",
+          "餐食来源、是否需要对方也同意吃第一口、以及两人之间的关系性质（同居、同事、友伴等）。"
+        ]
+      },
+      "advice": {
+        "together": [
+          "就第一口的分配规则达成共识，并建立未来类似情景的处理流程。",
+          "在共识前避免指责，优先采用轮流、分配半份或事先同意的共享方式。"
+        ],
+        "forA": [
+          "如确有第一口的需要，明确向B方解释原因并探讨可行的共享方案。",
+          "表达愿意遵循双方约定的规则，避免未来冲突。"
+        ],
+        "forB": [
+          "提供对第一口的期望或规则以便共同制定合理的分配方案。",
+          "在对话中保持开放态度，聚焦解决方案而非指责。"
+        ]
+      },
+      "raw_agent_payload": {
+        "id": "chatcmpl-CjI4yWqE8JEA0RA6SKGo4yC8wqcdQ",
+        "object": "chat.completion",
+        "created": 1764910292,
+        "model": "gpt-5-nano-2025-08-07",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"score\": {\n    \"partyA_pct\": 55,\n    \"partyB_pct\": 45,\n    \"confidence\": 0.4\n  },\n  \"summary\": \"目前信息仅显示A因饥饿而直接吃了第一口，B方尚未陈述意见或提供证据，缺乏关于共享规则、先后顺序或 ownership 的明确信息。因此，无法单凭当前事实作出明确的分配结论，需获取B方的陈述以便公正判断。\",\n  \"reasoning\": {\n    \"facts\": [\n      \"A的陈述为：因饥饿而直接吃了第一口。\",\n      \"没有B方的陈述、证据或对共享规则的说明。\",\n      \"未提供关于是否存在事先的约定、轮流、份额分配等信息。\"\n    ],\n    \"fairness_checks\": [\n      \"信息来源单一，存在信息偏倚风险；需要对方陈述以确认共同用餐的规则与期望。\",\n      \"在缺乏明确规则时，避免对占据“第一口”的行为作道德判断，重点在于建立公平的解决方案。\"\n    ],\n    \"emotion_considerations\": [\n      \"可能存在因饥饿导致的正当性情绪，但无法从A方情绪推断B方立场。\",\n      \"若双方对共享与分配有情感诉求，情绪应通过对话与协商解决，而非指责。\"\n    ],\n    \"assumptions\": [\n      \"假设场景为两人共享餐食，且存在对第一口的潜在争议。\",\n      \"假设不存在明确的事前规则或约定关于第一口的分配。\"\n    ],\n    \"missing_info\": [\n      \"请提供B方的陈述与诉求。\",\n      \"是否存在事前的用餐规则、轮流、份额分配等约定。\",\n      \"餐食来源、是否需要对方也同意吃第一口、以及两人之间的关系性质（同居、同事、友伴等）。\"\n    ]\n  },\n  \"advice\": {\n    \"together\": [\n      \"就第一口的分配规则达成共识，并建立未来类似情景的处理流程。\",\n      \"在共识前避免指责，优先采用轮流、分配半份或事先同意的共享方式。\"\n    ],\n    \"forA\": [\n      \"如确有第一口的需要，明确向B方解释原因并探讨可行的共享方案。\",\n      \"表达愿意遵循双方约定的规则，避免未来冲突。\"\n    ],\n    \"forB\": [\n      \"提供对第一口的期望或规则以便共同制定合理的分配方案。\",\n      \"在对话中保持开放态度，聚焦解决方案而非指责。\"\n    ]\n  }\n}",
+              "refusal": null,
+              "annotations": []
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 228,
+          "completion_tokens": 3854,
+          "total_tokens": 4082,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "audio_tokens": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 3200,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          }
+        },
+        "service_tier": "default",
+        "system_fingerprint": null
+      },
+      "created_at": "2025-12-05T04:52:11.680Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": "7af99064-e65e-4815-8627-223413a9fdb6",
+      "from_user_id": "b5d76175-3dfe-4548-ba85-bd41ee91b674",
+      "to_user_id": "b5d76175-3dfe-4548-ba85-bd41ee91b674",
+      "content": "[系统] 我发起了一个案件邀请：test",
+      "created_at": "2025-12-05T04:48:53.477Z"
+    },
+    {
+      "id": "92a52015-5ea5-462c-aa95-924514a640e8",
+      "from_user_id": "2d7fc6c0-98fe-4055-8788-2decdeea8c4d",
+      "to_user_id": "b5d76175-3dfe-4548-ba85-bd41ee91b674",
+      "content": "hello",
+      "created_at": "2025-12-05T04:50:02.070Z"
+    },
+    {
+      "id": "6d3227c1-f9a4-49c1-97ba-b743175b5848",
+      "from_user_id": "b5d76175-3dfe-4548-ba85-bd41ee91b674",
+      "to_user_id": "2d7fc6c0-98fe-4055-8788-2decdeea8c4d",
+      "content": "hello",
+      "created_at": "2025-12-05T04:50:37.553Z"
+    },
+    {
+      "id": "de1a3e40-728d-4762-aa54-a0c010975609",
+      "from_user_id": "b5d76175-3dfe-4548-ba85-bd41ee91b674",
+      "to_user_id": "2d7fc6c0-98fe-4055-8788-2decdeea8c4d",
+      "content": "[系统] 我发起了一个案件邀请：第一口饭谁吃",
+      "created_at": "2025-12-05T04:51:01.876Z"
+    }
+  ]
 }
